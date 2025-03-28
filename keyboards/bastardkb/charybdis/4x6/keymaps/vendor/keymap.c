@@ -27,6 +27,14 @@ enum charybdis_keymap_layers {
     LAYER_POINTER,
 };
 
+enum {
+  TD_ENTER_CTRL,
+};
+
+tap_dance_action_t tap_dance_actions[] = {
+  [TD_ENTER_CTRL] = ACTION_TAP_DANCE_DOUBLE(KC_ENTER, KC_LCTL),
+};
+
 /** \brief Automatically enable sniping-mode on the pointer layer. */
 #define CHARYBDIS_AUTO_SNIPING_ON_LAYER LAYER_POINTER
 
@@ -66,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
        KC_LCTL,    PT_Z,    KC_X,    KC_C,    KC_V,    KC_B,       KC_N,    KC_M, KC_COMM,  KC_DOT, PT_SLSH, KC_LALT,
   // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                   KC_LGUI, KC_SPC,   LOWER,      RAISE,  KC_ENT,
+                                   KC_LGUI, KC_SPC,   LOWER,      RAISE,  TD_ENTER_CTRL,
                                            KC_LALT, KC_BSPC,     KC_DEL
   //                            ╰───────────────────────────╯ ╰──────────────────╯
   ),
@@ -120,11 +128,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #ifdef POINTING_DEVICE_ENABLE
 #    ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+
+uint8_t matrix_mode;
+hsv_t hsv_value;
+
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     if (abs(mouse_report.x) > CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD || abs(mouse_report.y) > CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD) {
         if (auto_pointer_layer_timer == 0) {
             layer_on(LAYER_POINTER);
 #        ifdef RGB_MATRIX_ENABLE
+            if (rgb_matrix_get_mode() != RGB_MATRIX_NONE) {
+              matrix_mode = rgb_matrix_get_mode();
+              hsv_value = rgb_matrix_get_hsv();
+            }
+
             rgb_matrix_mode_noeeprom(RGB_MATRIX_NONE);
             rgb_matrix_sethsv_noeeprom(HSV_GREEN);
 #        endif // RGB_MATRIX_ENABLE
@@ -139,7 +156,8 @@ void matrix_scan_user(void) {
         auto_pointer_layer_timer = 0;
         layer_off(LAYER_POINTER);
 #        ifdef RGB_MATRIX_ENABLE
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_DEFAULT_MODE);
+        rgb_matrix_mode_noeeprom(matrix_mode);
+        rgb_matrix_sethsv_noeeprom(hsv_value.h, hsv_value.s, hsv_value.v);
 #        endif // RGB_MATRIX_ENABLE
     }
 }
@@ -157,3 +175,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 // Forward-declare this helper function since it is defined in rgb_matrix.c.
 void rgb_matrix_update_pwm_buffers(void);
 #endif
+
+const uint16_t PROGMEM test_combo1[] = {LT(1, KC_ESC), LT(1, KC_F1), COMBO_END};
+combo_t key_combos[] = {
+    COMBO(test_combo1, MO(2)),
+    // COMBO(test_combo2, LCTL(KC_Z)), // keycodes with modifiers are possible too!
+};

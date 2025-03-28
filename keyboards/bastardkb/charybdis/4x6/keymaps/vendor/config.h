@@ -18,13 +18,26 @@
 
 #ifdef VIA_ENABLE
 /* VIA configuration. */
-#    define DYNAMIC_KEYMAP_LAYER_COUNT 4
+#    define DYNAMIC_KEYMAP_LAYER_COUNT 5
 #endif // VIA_ENABLE
+
+#undef MASTER_RIGHT
+#define MASTER_LEFT
+#define TAPPING_TERM 125
+// #define RETRO_TAPPING
+#define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 
 #ifndef __arm__
 /* Disable unused features. */
 #    define NO_ACTION_ONESHOT
 #endif // __arm__
+
+#define CHARYBDIS_CONFIG_SYNC
+#define MOUSEKEY_INTERVAL 10
+#define MOUSEKEY_DELAY 10
+#define MOUSEKEY_TIME_TO_MAX 30
+#define MOUSEKEY_MAX_SPEED 48
+#define MOUSEKEY_WHEEL_DELAY 10
 
 /* Charybdis-specific features. */
 
@@ -32,5 +45,6 @@
 // Automatically enable the pointer layer when moving the trackball.  See also:
 // - `CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS`
 // - `CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD`
-// #define CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+#define CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+#define CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD 4
 #endif // POINTING_DEVICE_ENABLE
